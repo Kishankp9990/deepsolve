@@ -1,0 +1,8 @@
+To connect terminal to git if you have already added ssh keys:-
+	1. # Start the SSH agent
+		eval "$(ssh-agent -s)"
+	2. ssh-add /home/kishan/my_data/ssh
+		then enter pass phrase
+	3. # Test your SSH connection
+		ssh -T git@github.com
+	

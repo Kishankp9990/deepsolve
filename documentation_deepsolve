@@ -1,0 +1,184 @@
+	Steps to use deepsolve apis:-
+	
+	1. To call the website:-
+		make a get request to the link:- 172.18.16.21:7999
+	2. To register user:-
+		a. Link:- 172.18.16.21:7999/user/register
+		b. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "user1",
+			    "email": "user1@gmail.com",
+			    "password": "password1"
+			} 
+		c. Make Post request
+	3. To login user:-
+		a. Link:- 172.18.16.21:7999/user/login
+		b. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "user1",
+			    "password": "password1"
+			}
+		c. Make Post request
+	4. To create post:- (note:- Please ensure that you are logged in first otherwise you will not be able to create post)
+		a. Link:- 172.18.16.21:7999/user/post
+		b. in the raw section of body in the api caller paste:- 
+			{
+			    "caption": "My post!",
+			    "post_url": "https://post0.com/image.jpg",
+			    "background_music_url": "https://bg.com/music.mp3",
+			    "category": "Entertainment",
+			    "is_public": true
+			}
+		c. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+			This token id will be the token returned as a response after login.
+		d. Make Post Request.
+		
+	5. To get posts by logged in user:-
+		a. Link:- 172.18.16.21:7999/user/get_user_posts
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+			This token id will be the token returned as a response after login.
+		c. Make a get request.
+		
+	6. To create profile:- (note:- Please ensure that you are logged in first otherwise you will not be able to create profile)
+		a. Link:- 172.18.16.21:7999/user/profile
+		b. in the raw section of body in the api caller paste:- 
+			{
+			    "name": "user 0",
+			    "username": "user1",
+			    "profile_pic": "https://dp.com/profile.jpg",
+			    "bio": "gym freak!",
+			    "dob": "2003-06-14"
+			}
+		c. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+			This token id will be the token returned as a response after login.
+		d. Make Post Request.
+	7. To get profile:- (note:- Please ensure that you are logged in first otherwise you will not be able to get any user profile)
+		a. Link:- 172.18.16.21:7999/user/profile?username=<user_name> (If username not provided it will show the logged in user profile)
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+			This token id will be the token returned as a response after login.
+		d. Make Get Request.
+	8. To edit profile:- (note:- Please ensure that you are logged in first otherwise you will not be able to edit profile)
+		a. Link:- 172.18.16.21:7999/user/profile/edit
+		b. in the raw section of body in the api caller paste:- 
+			{
+			    "name": "user 0",
+			    "username": "user1",
+			    "profile_pic": "https://dp.com/profile.jpg",
+			    "bio": "gym freak!",
+			    "dob": "2003-06-14"
+			}
+		c. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+			This token id will be the token returned as a response after login.
+		d. Make Post Request.
+		
+		Or If you want to make partial update (for example DOB)
+		
+			Then in the raw section pass only the fields you want to update { "dob": "2003-06-14"} and then make PATCH request. Patch is used for partial update
+	9. To follow other user:-
+		a. Link:- 172.18.16.21:7999/user/follow
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "target_username"
+			}
+
+		d. Make Post request
+	10. To get the list of his/her followers:-
+		a. Link:- 172.18.16.21:7999/user/get_personal_followers
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. Make Get request
+		
+	11. To get the list of his/her followings:-
+		a. Link:- 172.18.16.21:7999/user/get_personal_followings
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. Make Get request
+		
+	12. To remove follower:-
+		a. Link:- 172.18.16.21:7999/user/remove_follower
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "follower_username"
+			}
+
+		d. Make DELETE request
+		
+	13. To unfollow:-
+		a. Link:- 172.18.16.21:7999/user/remove_following
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "following_username"
+			}
+		d. Make DELETE request
+	
+	14. to get list of post from target user (user must follow target user in order to see posts)
+		a. Link:- 172.18.16.21:7999/user/get_posts
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "user1"
+			}
+
+		d. Make Get request
+		
+	15. to get list of followers and followings from target user (user must follow target user in order to see this list)
+		a. Link:- 172.18.16.21:7999/user/get_list_followers_following
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "username": "user1"
+			}
+
+		d. Make Get request
+	
+	16. to like someones post but for that user must follow publisher
+		a. Link:- 172.18.16.21:7999/user/post/like
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "post_id":1
+			}
+
+		d. Make Post request
+		
+	17. to comment on someones post but for that user must follow publisher
+		a. Link:- 172.18.16.21:7999/user/post/comment
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "post_id":1,
+			    "text": "comment0"
+			}
+
+		d. Make Post request
+
+	18. to get list of users who liked particular post, For this user must follow publisher
+		a. Link:- 172.18.16.21:7999/user/list_user_like
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "post_id":1
+			}
+
+		d. Make Get request
+
+	19. to get list of users who commented particular post, For this user must follow publisher
+		a. Link:- 172.18.16.21:7999/user/list_user_comment
+		b. In the header section of the post request add Authorization in the Key and in Value section add 'Token <token_id>'
+		c. in the raw section of body in the api caller paste:- 
+			{
+			    "post_id":1
+			}
+
+		d. Make Get request
+
+	20. to fetch feed(pagination implemented):- Feed will show only contents from the publisher whom user follows and latest post will be shown first
+		a. Link:- 172.18.16.21:7999/user/feed
+		b. In the header section of the post request add Authorization in the Key and in Value section
+		c. Make Get request
+
+	21. to search user(pagination implemented):-
+		a. Link:- 172.18.16.21:7999/user/serarch_users
+		b. In the header section of the post request add Authorization in the Key and in Value section
+		c. Make Get request

@@ -16,4 +16,8 @@ urlpatterns = [
     path('get_list_followers_following', views.get_followers_and_followings, name='get_list_followers_followings'),
     path('post/like', views.like_post, name='like_post'),
     path('post/comment', views.comment_on_post, name='comment_post'),
+    path('list_user_like', views.users_who_liked_post, name='users_who_liked_post'),
+    path('list_user_comment', views.users_who_commented_post, name='users_who_commented_post'),
+    path('feed', views.user_feed, name='user_feed'),
+    path('search_users', views.search_users, name='search_users'),
 ]

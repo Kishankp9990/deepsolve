@@ -3,6 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.contrib.auth import authenticate
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -331,3 +332,127 @@ def comment_on_post(request):
     comment = CommentPost.objects.create(user=request.user, post=post, text=text)
     serializer = CommentSerializer(comment)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#to get list of likes on a post
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def users_who_liked_post(request):
+
+    post_id = request.data.get('post_id')
+    
+    if not post_id:
+        return Response(
+            {"error": "post_id is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Get the post
+    post = get_object_or_404(UserPost, id=post_id)
+
+    # Check if the logged-in user follows the publisher or is the publisher themselves
+    follows_publisher = Follow.objects.filter(
+        follower=request.user,
+        following=post.publisher
+    ).exists()
+
+    if not follows_publisher and post.publisher != request.user:
+        return Response(
+            {"error": "You must follow the publisher to access this data."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Fetch the list of users who liked the post
+    likes = LikePost.objects.filter(post=post).select_related('user')
+    liked_users = [{"username": like.user.username, "liked_at": like.created_at} for like in likes]
+    
+    return Response(
+        {"post_id": post_id, "likes": liked_users},
+        status=status.HTTP_200_OK
+    )
+
+# to get the list of user who commented.
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def users_who_commented_post(request):
+
+    post_id = request.data.get('post_id')
+    
+    if not post_id:
+        return Response(
+            {"error": "post_id is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    # Get the post
+    post = get_object_or_404(UserPost, id=post_id)
+    
+    # Check if the logged-in user follows the publisher or is the publisher themselves
+    follows_publisher = Follow.objects.filter(
+        follower=request.user,
+        following=post.publisher
+    ).exists()
+
+    if not follows_publisher and post.publisher != request.user:
+        return Response(
+            {"error": "You must follow the publisher to access this data."},
+            status=status.HTTP_403_FORBIDDEN
+        )
+    
+    # Fetch the list of users who commented on the post
+    comments = CommentPost.objects.filter(post=post).select_related('user')
+    commented_users = [
+        {"username": comment.user.username, "comment_text": comment.text, "commented_at": comment.created_at}
+        for comment in comments
+    ]
+    
+    return Response(
+        {"post_id": post_id, "comments": commented_users},
+        status=status.HTTP_200_OK
+    )
+
+# to implement user feed
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_feed(request):
+    # Get the list of users the logged-in user is following
+    following_users = Follow.objects.filter(follower=request.user).values_list('following', flat=True)
+    
+    # Get posts from the followed users, in reverse chronological order
+    posts = UserPost.objects.filter(publisher__in=following_users).order_by('-datetime_posted', '-id')
+
+    # Pagination setup
+    paginator = PageNumberPagination()
+    paginator.page_size = 10  # Limit to 10 posts per page
+    paginated_posts = paginator.paginate_queryset(posts, request)
+    
+    # Serialize the posts
+    serializer = PostSerializer(paginated_posts, many=True)
+    
+    # Return paginated response
+    return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_users(request):
+    """
+    Search for users based on a substring in their username, with pagination.
+    """
+    query = request.query_params.get('q', '').strip()
+    
+    if not query:
+        return Response(
+            {"error": "Query parameter 'q' is required."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    # Perform a case-insensitive search
+    matching_users = User.objects.filter(username__icontains=query).order_by('username')
+    
+    # Pagination setup
+    paginator = PageNumberPagination()
+    paginator.page_size = 10  # Adjust page size as needed
+    paginated_users = paginator.paginate_queryset(matching_users, request)
+    
+    return paginator.get_paginated_response({"query": query, "results": [user.username for user in paginated_users]})
